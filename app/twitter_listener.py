@@ -3,7 +3,7 @@ import twitter as tw
 from . import app
 import threading
 import mongo_parser
-
+from pprint import pprint
 
 # implementation of a background thread that just listens for tweets on
 # the global mongodb channel and calls a function from TwitterShell
@@ -34,6 +34,9 @@ class TwitterListener (threading.Thread):
         iterator = self.stream.user()
         for tweet in iterator:
             if 'text' in tweet:
-                mongo_parser.MongoParser.processTwitter(tweet['text'])
+                pprint(tweet)
+                mongo_parser.MongoParser.processTwitter(tweet['text'],
+                                                        tweet['id'],
+                                                        tweet['user']['screen_name'])
         # finished authentication, now start listening for twitter feed.
 

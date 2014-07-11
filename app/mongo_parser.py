@@ -13,7 +13,7 @@ class MongoParser:
    
     # post a message to the authenticated twitter stream
     @staticmethod
-    def postTwitter(msg): 
+    def postTwitter(msg, tweetId, username): 
         MY_TWITTER_CREDS = os.path.expanduser('~/.my_app_credentials')
         if not os.path.exists(MY_TWITTER_CREDS):
             tw.oauth_dance("SkunkWorks140", 
@@ -29,14 +29,23 @@ class MongoParser:
         oauth_secret, 
         app.config['TWITTER_CONSUMER_KEY'], 
         app.config['TWITTER_CONSUMER_SECRET']))
-        print "supposed to post {} to Twitter~".format(msg)
+        
+
+        twitter.statuses.update(status="@{} {}".format(username, msg))
+
+        print "@{} {}".format(username, msg)
 
     @staticmethod
-    def processTwitter(msg):
+    def processTwitter(msg, tweetId, username):
         regex = r'^(?P<mention>\S+)\s+(?P<prunedData>.+)'
         stripper = re.compile(regex)
         m = stripper.match(msg)
-        MongoParser.process(m.groupdict()['prunedData'])
+        if m is None:
+            return;
+
+        response = MongoParser.process(m.groupdict()['prunedData'])
+        # get back a string to respond with
+        MongoParser.postTwitter(response, tweetId, username)
 
     # parses and validates a command from twitter into a standard canonical command
     @staticmethod
@@ -45,11 +54,40 @@ class MongoParser:
         regex = r'\s*db\.(?P<coll>\w+)\.(?P<func>\w+)\((?P<data>.+)\)'
         twitter_matcher = re.compile(regex)
         m = twitter_matcher.match(msg)
-        print "============ MAPPING DATA INTO NATIVE FORMAT ============"
-        data_full = demjson.decode(m.groupdict()['data'])
-        pprint(data_full)
+        
+        if m is None:
+            return "invalid command string passed";
 
+        print "============ MAPPING DATA INTO NATIVE FORMAT ============"
+        data_parsed = demjson.decode(m.groupdict()['data'])
+        pprint(data_parsed)
+        
         print "============ FULL OUTPUT ============"
-        pprint(m.groupdict())
+        parsed = m.groupdict()
+        
+        client = pymongo.MongoClient()
+        if parsed['func'] == 'find':
+            cur = client.db[parsed['coll']].find(data_parsed)
+            ld = list(cur)
+            msg = ''
+            for item in ld:
+                msg += ('{' + ', '.join('{} : {}'.format(key, val) for key, val in sorted(item.items())) + '}' + '\n')
+            return msg
+    
+        elif parsed['func'] == 'insert':
+            cur = client.db[parsed['coll']].insert(data_parsed)
+            return "{} successfully inserted".format(cur)
+
+
+
+
+
+
+
+
+
+
+
+
 
 
