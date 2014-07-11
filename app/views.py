@@ -38,5 +38,3 @@ def listen():
 def successauth():
     return 'authentication was successful'
 
-
-
