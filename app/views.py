@@ -6,7 +6,6 @@ import json
 from bson import json_util
 import logging
 import urllib
-import twitter_engine as twe
 import twitter_listener as tl
 
 logger = logging.getLogger('views')
@@ -23,8 +22,7 @@ def index():
 @app.route('/twitter')
 def twitter():
     print "twitter hit"
-    twt = twe.TwitterEngine()
-    bg = tl.TwitterListener(twt) 
+    bg = tl.TwitterListener() 
     print "successfully constructed"
     bg.start()
     print "running"
