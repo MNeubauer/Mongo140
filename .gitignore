@@ -1,2 +1,8 @@
 app/config.py
+
+# compiled python files
 *.pyc
+
+# editor artifact files
+*.swo
+*.swp
