@@ -7,7 +7,6 @@ app.config.from_object(config)
 
 from app import views
 from app import filters
-from app import facebook_engine
 
 app.wsgi_app = ProxyFix(app.wsgi_app)
 
