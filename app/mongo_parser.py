@@ -10,7 +10,10 @@ import demjson
 # contains information about the twitter state and the conection.
 
 class MongoParser:
-   
+    def cap(s, l):
+         return s if len(s)<=l else s[0:l-3]+'...'
+
+
     # post a message to the authenticated twitter stream
     @staticmethod
     def postTwitter(msg, tweetId, username): 
@@ -30,6 +33,7 @@ class MongoParser:
         app.config['TWITTER_CONSUMER_KEY'], 
         app.config['TWITTER_CONSUMER_SECRET']))
         
+        msg=cap(msg,140)
 
         twitter.statuses.update(status="@{} {}".format(username, msg))
 
