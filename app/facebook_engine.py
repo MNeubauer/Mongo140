@@ -1,9 +1,11 @@
 #import facebook
 from . import app
+from flask import request
+import requests 
 
 @app.route('/')
 def index():
-    'Hello World'
+    return 'Hello World'
 
 
 @app.route('/subscribe')
@@ -32,7 +34,10 @@ def handle_requests():
         # if we have our verification token back echo the challenge back to facebook
         if verification == FB_VERIFY_TOKEN:
             return challenge
+        else:
+            return "FAILED"
 
     elif request.method == 'POST':
         # do some stuff with the updates
         print (request)
+        return "Hello World"
